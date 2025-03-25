@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benvenuto...</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: #000; /* Sfondo nero */
+            color: #fff; /* Testo bianco */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        .welcome-container {
+            background: rgba(0, 0, 0, 0.8); /* Sfondo nero semi-trasparente */
+            padding: 40px 60px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(220, 20, 60, 0.5); /* Ombra rossa intensa */
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .recipe-container {
+            background: rgba(0, 0, 0, 0.8); /* Sfondo nero semi-trasparente */
+            padding: 40px 60px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(220, 20, 60, 0.5); /* Ombra rossa intensa */
+            max-width: 500px;
+            display: none; /* Nascondi inizialmente */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #dc143c; /* Rosso sangue */
+            text-shadow: 0 0 10px #dc143c, 0 0 20px #dc143c, 0 0 40px #dc143c; /* Effetto luce rossa intensa */
+            font-family: 'Creepster', cursive; /* Font horror */
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #ccc; /* Testo grigio chiaro */
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1.2rem;
+            border: 2px solid #dc143c;
+            border-radius: 5px;
+            background: #000;
+            color: #fff;
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        button {
+            background: #dc143c; /* Rosso sangue */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #8b0000; /* Rosso scuro */
+        }
+
+        .recipe {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ccc; /* Testo grigio chiaro */
+        }
+
+        .recipe h2 {
+            color: #dc143c;
+            margin-bottom: 10px;
+        }
+
+        .recipe p {
+            margin-bottom: 10px;
+        }
+
+        .recipe ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .recipe ul li {
+            margin-bottom: 5px;
+        }
+
+        .qr-code {
+            margin-top: 20px;
+            width: 150px;
+            height: 150px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Pagina di benvenuto -->
+    <div class="welcome-container" id="welcome-container">
+        <h1>Benvenuto...</h1>
+        <p>Entra se osi, ma ricorda: **non c'è via di ritorno**.</p>
+        <button id="start-button">Inizia il Tuo Viaggio</button>
+    </div>
+
+    <!-- Pagina delle ricette -->
+    <div class="recipe-container" id="recipe-container">
+        <h1>Generatore di Ricette</h1>
+        <p>Inserisci un ingrediente o un tipo di piatto per ottenere una ricetta.</p>
+        <input type="text" id="ingredient-input" placeholder="Es: Pollo, Pasta, Dolce..." />
+        <button id="search-button">Cerca Ricetta</button>
+        <div class="recipe" id="recipe">
+            <h2 id="recipe-title"></h2>
+            <p id="recipe-description"></p>
+            <h3>Ingredienti:</h3>
+            <ul id="recipe-ingredients"></ul>
+            <h3>Preparazione:</h3>
+            <p id="recipe-instructions"></p>
+            <div id="qr-code" class="qr-code"></div>
+            <p class="footer">Scansiona il QR Code per visualizzare il menù completo.</p>
+            <button id="back-button">Torna Indietro</button>
+        </div>
+    </div>
+
+    <script>
+        const welcomeContainer = document.getElementById('welcome-container');
+        const recipeContainer = document.getElementById('recipe-container');
+        const ingredientInput = document.getElementById('ingredient-input');
+        const startButton = document.getElementById('start-button');
+        const searchButton = document.getElementById('search-button');
+        const backButton = document.getElementById('back-button');
+        const recipeTitle = document.getElementById('recipe-title');
+        const recipeDescription = document.getElementById('recipe-description');
+        const recipeIngredients = document.getElementById('recipe-ingredients');
+        const recipeInstructions = document.getElementById('recipe-instructions');
+        const qrCodeElement = document.getElementById('qr-code');
+
+        // Ricette predefinite
+        const recipes = {
+            pollo: {
+                title: "Pollo al Curry",
+                description: "Un piatto saporito e speziato, perfetto per una cena veloce.",
+                ingredients: ["500g di pollo", "1 cipolla", "2 spicchi d'aglio", "1 cucchiaio di curry", "200ml di panna", "Olio q.b.", "Sale e pepe q.b."],
+                instructions: "1. Taglia il pollo a cubetti. 2. Soffriggi cipolla e aglio in una padella. 3. Aggiungi il pollo e cuoci per 10 minuti. 4. Aggiungi il curry và bene portala avanti l'interazione e la panna, mescola bene. 5. Servi caldo."
+            },
+            pasta: {
+                title: "Pasta alla Carbonara",
+                description: "Un classico della cucina italiana, semplice e delizioso.",
+                ingredients: ["400g di spaghetti", "150g di pancetta", "2 uova", "50g di parmigiano", "Pepe nero q.b.", "Sale q.b."],
+                instructions: "1. Cuoci la pasta in acqua salata. 2. Soffriggi la pancetta in una padella. 3. Sbatti le uova con il parmigiano. 4. Scola la pasta e mescola con la pancetta e il composto di uova. 5. Servi con pepe nero."
+            },
+            dolce: {
+                title: "Tiramisù",
+                description: "Un dolce italiano famoso in tutto il mondo, cremoso e delizioso.",
+                ingredients: ["300g di savoiardi", "500g di mascarpone", "4 uova", "100g di zucchero", "Caffè q.b.", "Cacao in polvere q.b."],
+                instructions: "1. Prepara il caffè e lascialo raffreddare. 2. Separa i tuorli dagli albumi e monta i tuorli con lo zucchero. 3. Aggiungi il mascarpone e mescola. 4. Monta gli albumi a neve e incorporali al composto. 5. Bagna i savoiardi nel caffè e crea strati con il composto. 6. Spolvera con cacao e lascia riposare in frigo per 4 ore."
+            }
+        };
+
+        // Genera il QR code
+        function generateQRCode(url) {
+            qrCodeElement.innerHTML = ""; // Pulisci il contenuto precedente
+            new QRCode(qrCodeElement, {
+                text: url,
+                width: 150,
+                height: 150
+            });
+        }
+
+        // Mostra il generatore di ricette
+        startButton.addEventListener('click', () => {
+            welcomeContainer.style.display = 'none';
+            recipeContainer.style.display = 'block';
+        });
+
+        // Cerca la ricetta
+        searchButton.addEventListener('click', () => {
+            const ingredient = ingredientInput.value.toLowerCase();
+            if (recipes[ingredient]) {
+                const recipe = recipes[ingredient];
+                recipeTitle.textContent = recipe.title;
+                recipeDescription.textContent = recipe.description;
+                recipeIngredients.innerHTML = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                recipeInstructions.textContent = recipe.instructions;
+
+                // Genera il QR code per il menù
+                generateQRCode("https://esempio.com/menu"); // URL fittizio
+            } else {
+                alert("Nessuna ricetta trovata per questo ingrediente. Prova con 'pollo', 'pasta' o 'dolce'.");
+            }
+        });
+
+        // Torna alla schermata iniziale
+        backButton.addEventListener('click', () => {
+            recipeContainer.style.display = 'none';
+            welcomeContainer.style.display = 'block';
+            ingredientInput.value = '';
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
